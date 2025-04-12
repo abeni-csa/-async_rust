@@ -1,3 +1,4 @@
+use std::thread::JoinHandle;
 use std::{thread, time};
 
 fn do_something(number: i8) -> i8 {
@@ -10,9 +11,15 @@ fn do_something(number: i8) -> i8 {
 
 fn main() {
     let now = time::Instant::now();
-    let one: i8 = do_something(1);
-    let two: i8 = do_something(2);
-    let three: i8 = do_something(3);
+    let thread_one: JoinHandle<i8> = thread::spawn(|| do_something(1));
+    let thread_two: JoinHandle<i8> = thread::spawn(|| do_something(2));
+    let thread_three: JoinHandle<i8> = thread::spawn(|| do_something(3));
+    let result_one = thread_one.join();
+    let result_two = thread_two.join();
+    let result_three = thread_three.join();
     println!("time elaspeld {:?}", now.elapsed());
-    println!("Result {}", one + two + three)
+    println!(
+        "Result {}",
+        result_one.unwrap() + result_two.unwrap() + result_three.unwrap()
+    );
 }
