@@ -7,7 +7,7 @@ async fn do_something(number: i8) -> i8 {
     thread::sleep(two_seconds);
     2
 }
-#[tokio::main]
+#[tokio::main(worker_threads = 1)]
 async fn main() {
     let now = time::Instant::now();
     let future_one = do_something(1);
