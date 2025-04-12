@@ -1,25 +1,18 @@
-use std::thread::JoinHandle;
 use std::{thread, time};
 
-fn do_something(number: i8) -> i8 {
+async fn do_something(number: i8) -> i8 {
     // This Funcition takes a number to exeute as UID
     println!("number {} is runing", number);
     let two_seconds = time::Duration::new(2, 0);
     thread::sleep(two_seconds);
     2
 }
-
-fn main() {
+#[tokio::main]
+async fn main() {
     let now = time::Instant::now();
-    let thread_one: JoinHandle<i8> = thread::spawn(|| do_something(1));
-    let thread_two: JoinHandle<i8> = thread::spawn(|| do_something(2));
-    let thread_three: JoinHandle<i8> = thread::spawn(|| do_something(3));
-    let result_one = thread_one.join();
-    let result_two = thread_two.join();
-    let result_three = thread_three.join();
+    let future_one = do_something(1);
+    let outcome = future_one.await;
+
     println!("time elaspeld {:?}", now.elapsed());
-    println!(
-        "Result {}",
-        result_one.unwrap() + result_two.unwrap() + result_three.unwrap()
-    );
+    println!("Result {}", outcome);
 }
