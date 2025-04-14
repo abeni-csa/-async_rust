@@ -1,21 +1,23 @@
-use std::{thread, time};
+use std::env;
+use std::error::Error;
+use tokio::net::TcpListener;
 
-async fn do_something(number: i8) -> i8 {
-    // This Funcition takes a number to exeute as UID
-    println!("number {} is runing", number);
-    let two_seconds = time::Duration::new(2, 0);
-    thread::sleep(two_seconds);
-    2
-}
-#[tokio::main(worker_threads = 1)]
-async fn main() {
-    let now = time::Instant::now();
-    let future_one = tokio::spawn(do_something(1));
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let addr = env::args()
+        .nth(1)
+        .unwrap_or_else(|| "127.0.0.1:8080".to_string());
 
-    let two_seconds = time::Duration::new(2, 0);
-    thread::sleep(two_seconds);
-    let outcome = future_one.await.unwrap();
+    let listener = TcpListener::bind(&addr).await?;
+    println!("Listening on: {}", addr);
 
-    println!("time elaspeld {:?}", now.elapsed());
-    println!("Here is the outcome {}", outcome);
+    loop {
+        // Asynchronously wait for an inbound socket.
+        let (mut socket, _) = listener.accept().await?;
+
+        tokio::spawn(async move {
+            // process the TCP request
+            println!("Accepted connection from: {}", socket.peer_addr().unwrap());
+        });
+    }
 }
